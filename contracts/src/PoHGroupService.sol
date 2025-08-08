@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.28;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-
 import {IBaseGroup} from "src/interfaces/IBaseGroup.sol";
 import {PoHMembershipCondition} from "src/PoHMembershipCondition.sol";
 
@@ -13,9 +11,10 @@ import {PoHMembershipCondition} from "src/PoHMembershipCondition.sol";
  *      It ensures that only verified human accounts with valid PoH credentials can be trusted
  *      in the associated Circles group, with trust expiration aligned to PoH expiration.
  */
-contract PoHGroupService is Ownable{
+contract PoHGroupService {
     error HumanityIdDoesNotMatch(bytes20 submittedId, bytes20 registeredId);
     error InvalidPoHId();
+    error InvalidAccount(address account);
 
     IBaseGroup immutable group;
     PoHMembershipCondition immutable pohMembershipCondition;
@@ -26,7 +25,7 @@ contract PoHGroupService is Ownable{
      * @param _pohMembershipCondition Address of the PoH membership condition contract
      * @dev Sets the deployer as the initial owner who can register members
      */
-    constructor(address _group, address _pohMembershipCondition) Ownable(msg.sender) {
+    constructor(address _group, address _pohMembershipCondition) {
         group = IBaseGroup(_group);
         pohMembershipCondition = PoHMembershipCondition(_pohMembershipCondition);
     }
@@ -47,7 +46,7 @@ contract PoHGroupService is Ownable{
      *      - Trust expiration updates when PoH credentials are renewed
      *      - Implicit untrusting when PoH credentials have expired
      */
-    function register(bytes20 humanityID, address _account) external onlyOwner {
+    function register(bytes20 humanityID, address _account) external {
         if (!pohMembershipCondition.isRegistered(_account)) {
             pohMembershipCondition.registerMemberWithPoHId(_account, humanityID);
         }
@@ -58,8 +57,38 @@ contract PoHGroupService is Ownable{
 
         if (expirationTime <= uint40(block.timestamp)) revert InvalidPoHId();
 
+        _trustAccount(_account, uint96(expirationTime));
+    }
+
+    function untrust(address _account) external {
+        if (!pohMembershipCondition.isRegistered(_account)) {
+            revert InvalidAccount(_account);
+        }
+        bytes20 pohId = pohMembershipCondition.circlesToPoH(_account);
+
+        if(!pohMembershipCondition.isPoHIdValid(pohId)) {
+            // untrust account
+            _trustAccount(_account, uint96(0));
+        }
+    }
+
+    function untrustByPoHId(bytes20 _pohId) external {
+        bytes20 account = pohMembershipCondition.PoHToCircles(_pohId);
+        // @todo edit notification, no such pohId registered
+        if(account == address(0)) {
+            revert InvalidPoHId();
+        }
+
+        if(!pohMembershipCondition.isPoHIdValid(_pohId)) {
+            // untrust account
+            _trustAccount(account, uint96(0));
+        }
+    }
+
+    function _trustAccount(address _account, uint96 _expiry) private {
         address[] memory singleMemberArray = new address[](1);
         singleMemberArray[0] = _account;
-        group.trustBatchWithConditions(singleMemberArray, uint96(expirationTime));
+
+        group.trustBatchWithConditions(singleMemberArray, _expiry);
     }
 }

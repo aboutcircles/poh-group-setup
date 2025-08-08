@@ -21,7 +21,7 @@ interface IProofOfHumanity {
 
     function humanityOf(address _account) external view returns (bytes20 humanityId);
 
-    function getHumanityInfo(bytes20 _humanityId)
+    function humanityData(bytes20 _humanityId)
         external
         view
         returns (

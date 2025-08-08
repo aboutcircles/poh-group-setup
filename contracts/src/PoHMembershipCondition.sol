@@ -180,7 +180,7 @@ contract PoHMembershipCondition is IMembershipCondition {
         // @todo verify that this works correctly for regular PoH IDs and cross chain
         // Extract expiration time from PoH contract's humanity info
         // The function returns multiple values, we only need the expiration time (4th parameter)
-        (,,, expirationTime,,) = proofOfHumanity.getHumanityInfo(pohId);
+        (,,, expirationTime,,) = proofOfHumanity.humanityData(pohId); // @todo we should better use humanity data
     }
 
     /**
