@@ -1,0 +1,33 @@
+{
+  "name": "trust-management-service",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aboutcircles/TMS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aboutcircles/TMS/issues"
+  },
+  "homepage": "https://github.com/aboutcircles/TMS#readme",
+  "description": "",
+  "devDependencies": {
+    "@typechain/ethers-v6": "^0.5.1",
+    "@types/node": "^24.2.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typechain": "^8.3.2",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "ethers": "^6.15.0"
+  }
+}
