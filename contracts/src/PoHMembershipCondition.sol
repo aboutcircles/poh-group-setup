@@ -177,10 +177,24 @@ contract PoHMembershipCondition is IMembershipCondition {
      * @dev Retrieves expiration from the PoH contract's humanity info
      */
     function getPoHIdExpirationTime(bytes20 pohId) public view returns (uint40 expirationTime) {
-        // @todo verify that this works correctly for regular PoH IDs and cross chain
-        // Extract expiration time from PoH contract's humanity info
-        // The function returns multiple values, we only need the expiration time (4th parameter)
-        (,,, expirationTime,,) = proofOfHumanity.getHumanityInfo(pohId); // @todo we should better use humanity data
+        address owner = pohCrossChain.boundTo(pohId);
+
+        // Check if the humanity is claimed on the current chain
+        if (proofOfHumanity.isHuman(owner)) {
+            // Extract expiration time from local PoH contract's humanity info
+            (,,, expirationTime,,) = proofOfHumanity.getHumanityInfo(pohId);
+        }
+        // If the humanity is not claimed or expired on the current chain,
+        // get info from cross-chain data
+        else {
+            ICrossChainProofOfHumanity.CrossChainHumanity memory crossChainHumanity = pohCrossChain.humanityData(pohId);
+
+            // If the current chain is the humanity's home chain, the ID should be claimed locally
+            // CCPOH data can contain stale information in this case
+            require(!crossChainHumanity.isHomeChain, "Humanity ID is not claimed");
+
+            expirationTime = crossChainHumanity.expirationTime;
+        }
     }
 
     /**

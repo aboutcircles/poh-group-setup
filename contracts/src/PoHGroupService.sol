@@ -16,8 +16,8 @@ contract PoHGroupService {
     error InvalidPoHId();
     error InvalidAccount(address account);
 
-    IBaseGroup immutable public group;
-    PoHMembershipCondition immutable public pohMembershipCondition;
+    IBaseGroup public immutable group;
+    PoHMembershipCondition public immutable pohMembershipCondition;
 
     /**
      * @notice Initializes the PoH Group Service with required contracts
@@ -66,7 +66,7 @@ contract PoHGroupService {
         }
         bytes20 pohId = pohMembershipCondition.circlesToPoH(_account);
 
-        if(!pohMembershipCondition.isPoHIdValid(pohId)) {
+        if (!pohMembershipCondition.isPoHIdValid(pohId)) {
             // untrust account
             _trustAccount(_account, uint96(0));
         }
@@ -74,9 +74,9 @@ contract PoHGroupService {
 
     function untrustByPoHId(bytes20 _pohId) external {
         address account = pohMembershipCondition.PoHToCircles(_pohId);
-        if(account == address(0)) revert InvalidPoHId();
+        if (account == address(0)) revert InvalidPoHId();
 
-        if(!pohMembershipCondition.isPoHIdValid(_pohId)) {
+        if (!pohMembershipCondition.isPoHIdValid(_pohId)) {
             // untrust account
             _trustAccount(account, uint96(0));
         }

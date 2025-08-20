@@ -2,13 +2,15 @@
 pragma solidity >=0.8.28;
 
 interface IProofOfHumanity {
-    /** @dev Emitted when humanity is successfully claimed.
+    /**
+     * @dev Emitted when humanity is successfully claimed.
      *  @param humanityId The humanity ID.
      *  @param requestId The ID of the successfull request.
      */
     event HumanityClaimed(bytes20 humanityId, uint256 requestId);
 
-    /** @dev Emitted when humanity is successfully revoked.
+    /**
+     * @dev Emitted when humanity is successfully revoked.
      *  @param humanityId The humanity ID.
      *  @param requestId The ID of the successfull request.
      */
