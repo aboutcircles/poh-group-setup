@@ -22,6 +22,7 @@ contract PoHMembershipCondition is IMembershipCondition {
     error LinkIsNotEstablished(address circlesAccount, address externalAccount);
     error PoHIdIsAlreadyLinked(address circlesAccount, bytes20 humanityId);
     error ValidPoHIdNotFound(address account);
+    error HumanityIdNotClaimed(bytes20 humanityId);
 
     // Constants
     uint256 constant MAX_LOOP_ITERATIONS = 50;
@@ -191,7 +192,7 @@ contract PoHMembershipCondition is IMembershipCondition {
 
             // If the current chain is the humanity's home chain, the ID should be claimed locally
             // CCPOH data can contain stale information in this case
-            require(!crossChainHumanity.isHomeChain, "Humanity ID is not claimed");
+            if (crossChainHumanity.isHomeChain) revert HumanityIdNotClaimed(pohId);
 
             expirationTime = crossChainHumanity.expirationTime;
         }
